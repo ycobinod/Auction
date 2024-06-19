@@ -76,10 +76,13 @@ WSGI_APPLICATION = 'auction.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'auction',
+        'USER': 'binod',
+        'PASSWORD': 'hello@yco',
     }
 }
+
 AUTH_USER_MODEL='app.User'
 
 # Password validation
