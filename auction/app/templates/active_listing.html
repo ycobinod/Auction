@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="card">
+    <img class='card-img-top' src="{{ listing.url}}" class="card-img-full">
+    <div class="card-body">
+        <h4 class="card-title"> {{ listing.name}} </h4>
+        <p> {{ listing.description }} </p>
+        <p> Added by: {{ listing.owner }} </p>
+        <p> Date: {{ listing.date }} </p>
+            <div>
+                <form action="" method='post'>
+                    <button type="submit" name="listing_id"  class="btn btn-outline-success">Add to
+                        Watchlist</button>
+                </form>
+            </div>
+    </div>
+</div>

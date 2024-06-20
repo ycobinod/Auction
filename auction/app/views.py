@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.contrib.auth import login, logout, authenticate, get_user_model
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.contrib.auth import login, logout, authenticate
+from django.http import  HttpResponseRedirect,Http404
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from .models import User, Listing, User
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -56,7 +57,7 @@ def register(request):
         # Attempt to create new user
         try:
             user = User.objects.create_user(username=username, email=email, password=password)
-            login(request, user)  # Automatically login the user after registration
+            login(request, user) 
             return HttpResponseRedirect(reverse("login"))
         except IntegrityError:
             return render(request, "register.html", {
@@ -86,4 +87,14 @@ def create_listing(request):
             })        
     return render(request, "create_listing.html")
 
+#active listing view start
+def active_listing(request, listing_id):
+    try:
+        listing = Listing.objects.get(id=listing_id)
 
+    except Listing.DoesNotExist:
+        raise Http404("Listing not found.")
+    return render(request,"active_listing.html", {"listing":listing}) 
+    
+
+ 

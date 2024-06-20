@@ -17,6 +17,9 @@
             {% endif %}
         </div>
         <ul class="nav">
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'active_listing' %}">Active Listing</a>
+            </li>
         
             {% if user.is_authenticated %}
                 <li class="nav-item">
@@ -26,6 +29,7 @@
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
             {% else %}
+            
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'login' %}">Log In</a>
                 </li>
