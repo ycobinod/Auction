@@ -5,15 +5,32 @@
     <img class='card-img-top' src="{{ listing.url}}" class="card-img-full">
     <div class="card-body">
         <h4 class="card-title"> {{ listing.name}} </h4>
+        {% if listing.category %}
+            <a href="category/{{listing.category}}" class="badge badge-primary"> {{listing.category}} </a>
+        {% endif %}
         <p> {{ listing.description }} </p>
         <p> Added by: {{ listing.owner }} </p>
         <p> Date: {{ listing.date }} </p>
+        
+        {% if user.is_authenticated %}
             <div>
-                <form action="" method='post'>
-                    <button type="submit" name="listing_id"  class="btn btn-outline-success">Add to
+                {% if watchlist_state %}
+                <form action="{% url 'watchlist' %}" method='post'>
+                    {% csrf_token %}
+                    <button type="submit" name="listing_id" value="{{ listing.id }}" class="btn btn-outline-success">Add to
                         Watchlist</button>
                 </form>
-            </div>
+                {% else %}
+                <form action="{% url 'watchlist' %}" method='post'>
+                    {% csrf_token %}
+                    <button type="submit" name="listing_id" value="{{ listing.id }}" class="btn btn-outline-warning">Delete from
+                        Watchlist</button>
+                </form>
+                {% endif %}
+            {% else %}
+                <h2> You must be <a href="/login">login</a> to participate in the auction ! </h2>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

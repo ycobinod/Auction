@@ -4,7 +4,7 @@ from django.http import  HttpResponseRedirect,Http404
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from .models import User, Listing, User
+from .models import User, Listing, User,Watchlist
 from django.contrib.auth.decorators import login_required
 
 
@@ -97,10 +97,37 @@ def create_listing(request):
 def active_listing(request, listing_id):
     try:
         listing = Listing.objects.get(id=listing_id)
-
+        curent_user = request.user.id  
+        if Watchlist.objects.filter(user_watchlist = curent_user, listing_item = listing_id).exists():
+            watchlist_state = False
+        else:
+            watchlist_state = True
     except Listing.DoesNotExist:
         raise Http404("Listing not found.")
-    return render(request,"active_listing.html", {"listing":listing}) 
+    return render(request,"active_listing.html", {"listing":listing,'watchlist_state':watchlist_state}) 
+
+
+
     
+@login_required
+def watchlist(request):
+    curent_user = request.user.id      
+    if request.method == "POST":
+        listing_id = request.POST["listing_id"]
+        watching_user = User.objects.get(id = curent_user)
+        listing_item = Listing.objects.get(id = listing_id)
+        watchlist = Watchlist(user_watchlist=watching_user, listing_item=listing_item)
+        # Check if user already have that item in watchlist
+        curent_item = Watchlist.objects.filter(user_watchlist = curent_user, listing_item = listing_item)
+        if curent_item.exists():
+            curent_item.delete()
+        else:
+            watchlist.save()
+    curent_watch_id = Watchlist.objects.filter(user_watchlist=curent_user)
+    curent_watchlist = curent_watch_id.all()
+    return render(request, "watchlist.html", {
+        "all_watchlists": curent_watchlist
+        })
+
 
  
