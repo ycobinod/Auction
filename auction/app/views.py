@@ -9,7 +9,13 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    return render(request, "index.html")
+    all_listings = Listing.objects.all()
+    #Get unique values from category query
+    all_categories = Listing.objects.values('category').distinct().exclude(category__exact='')
+    return render(request, "index.html", {
+                    "all_categories": all_categories,     
+                    "listings": all_listings})
+
 
 def login_view(request):
     if request.method == 'POST':
