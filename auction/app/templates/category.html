@@ -1,19 +1,17 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<p> Category: <strong> {{category}} </strong> </p>
-<ul>
+<p> Category: <strong>{{ category }}</strong> </p>
+<div class="d-flex flex-wrap">
     {% for listing in listing_category %}
-        <div onclick="window.open('{% url "active_listing" listing.id %}', '_self');" class="card" style="width: 18rem;">            <div class="card-body">
-                <h5 class="card-title">
-                    {{ listing.name}}
-                </h5>
-                <img class="card-img-top" src="{{ listing.url}}">
-                <p class="card-text">Description:{{ listing.description }}</p>
-                <p class="card-text">Starting bid: {{ listing.starting_bid }}</p>
-            </div>
+    <div onclick="window.open('{% url 'active_listing' listing.id %}', '_self');" class="card m-2" style="width: 18rem; display: flex;">
+        <img class="card-img-top" src="{{ listing.url }}" alt="{{ listing.name }}" style="flex: 1;">
+        <div class="card-body" style="flex: 1;">
+            <h5 class="card-title">{{ listing.name }}</h5>
+            <p class="card-text">Description: {{ listing.description }}</p>
+            <p class="card-text">Starting bid: {{ listing.starting_bid }}</p>
         </div>
+    </div>
     {% endfor %}
-</ul>
-
+</div>
 {% endblock %}
