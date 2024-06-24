@@ -5,7 +5,7 @@
     <h2>Active Listings</h2>
     <h6> Categories 
         {% for category in all_categories %}
-            <a href="{{category.category}}" class="badge badge-primary"> {{category.category}} </a>
+            <a href="category/{{category.category}}" class="badge badge-primary"> {{category.category}} </a>
         {% endfor %}
     </h6>
     <div>

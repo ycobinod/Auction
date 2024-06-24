@@ -129,5 +129,10 @@ def watchlist(request):
         "all_watchlists": curent_watchlist
         })
 
-
+def category(request, category):
+    listing_category = Listing.objects.filter(category=category)
+    return render(request, "category.html", {
+        'category': category,
+        'listing_category': listing_category
+    })
  
