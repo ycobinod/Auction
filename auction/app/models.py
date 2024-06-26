@@ -16,7 +16,7 @@ class Listing(models.Model):
     winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='winner', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} {self.starting_bid}$ {self.owner}"  
+        return f"{self.name} {self.starting_bid} {self.owner}"  
     
 
 class Watchlist(models.Model):
