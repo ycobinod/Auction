@@ -1,11 +1,27 @@
 from django.shortcuts import render
 from django.contrib.auth import login, logout, authenticate
-from django.http import  HttpResponseRedirect,Http404
+from django.http import  HttpResponseRedirect,Http404,HttpResponseBadRequest
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from .models import User, Listing, User,Watchlist
-from django.contrib.auth.decorators import login_required
+from .models import User, Listing, User,Watchlist,Bid,Comment
+from django import forms
+from django.db.models import Max
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+
+
+
+class Bid_form(forms.Form):
+    bid_form = forms.IntegerField(required=True, label='Create your bid')
+    bid_form.widget.attrs.update({'class': 'form-control'})
+
+class Comment_form(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea(), label='Leave a comment')
+    comment.widget.attrs.update({
+        'class': 'form-control',
+        'rows': '3'
+    })
 
 
 def index(request):
@@ -15,6 +31,8 @@ def index(request):
     return render(request, "index.html", {
                     "all_categories": all_categories,     
                     "listings": all_listings})
+
+
 
 
 def login_view(request):
@@ -91,13 +109,70 @@ def active_listing(request, listing_id):
     try:
         listing = Listing.objects.get(id=listing_id)
         curent_user = request.user.id  
+        bid_count = Bid.objects.filter(item_bid=listing_id).count()
+        if bid_count > 0:
+            max_bid = Bid.objects.filter(item_bid=listing_id).aggregate(Max('bid'))
+            max_bid = max_bid['bid__max']
+        else:
+            max_bid = listing.starting_bid
         if Watchlist.objects.filter(user_watchlist = curent_user, listing_item = listing_id).exists():
             watchlist_state = False
         else:
             watchlist_state = True
     except Listing.DoesNotExist:
         raise Http404("Listing not found.")
-    return render(request,"active_listing.html", {"listing":listing,'watchlist_state':watchlist_state}) 
+    #All comments
+    # Get comments for this listing item
+    comments = Comment.objects.filter(listing_comment = listing_id)
+    #Make a Bid block
+    if request.method == 'POST':
+        form = Bid_form(request.POST)
+        curent_user = request.user.id
+        listing_id = request.POST["listing_id"]
+        listing_item = Listing.objects.get(id = listing_id)
+        user_bid = User.objects.get(id = curent_user)
+        if form.is_valid():
+            curent_bid = form.cleaned_data['bid_form']
+            bid_count = Bid.objects.filter(item_bid=listing_id).count()
+            if bid_count > 0:
+                max_bid = Bid.objects.filter(item_bid=listing_id).aggregate(Max('bid'))
+                max_bid = max_bid['bid__max']
+            else:
+                max_bid = listing_item.starting_bid
+            if curent_bid > max_bid: 
+                bid = Bid(user_bid=user_bid, item_bid_id=listing_item.id, bid=curent_bid)
+                bid.save()
+                return render(request, "active_listing.html", {
+                    "listing": listing_item,
+                    'comments': comments,
+                    'max_bid': curent_bid,
+                    'bid_count': bid_count + 1,
+                    'form': Bid_form(),
+                    'comment_form': Comment_form(),
+                    "succ_message": f"You made a successful bid for {curent_bid} !"
+                    })
+            else:
+                return render(request, "active_listing.html", {
+                    "listing": listing_item,
+                    'comments': comments,
+                    'max_bid': max_bid,
+                    'bid_count': bid_count,                        
+                    'form': Bid_form(),
+                    'comment_form': Comment_form(),
+                    "err_message": "Bid can't be less than curent max bid"
+                    })
+        else:           
+            return HttpResponseBadRequest("Form is not valid")
+    #End bid block
+    return render(request, "active_listing.html", {
+        "listing": listing,
+        'comments': comments,
+        'watchlist_state': watchlist_state,
+        'bid_count': bid_count,
+        'max_bid': max_bid,
+        'form': Bid_form(),
+        'comment_form': Comment_form()
+        })
 
 
 
