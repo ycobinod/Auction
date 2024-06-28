@@ -204,3 +204,38 @@ def category(request, category):
         'listing_category': listing_category
     })
  
+
+
+@login_required
+def close_bid(request):
+    if request.method == "POST":
+        listing_id = request.POST["listing_id"]
+        active_listing = Listing.objects.get(id=listing_id)
+        active_listing.active = False
+        bid_count = Bid.objects.filter(item_bid=listing_id).count()
+        if bid_count > 0:
+            max_bid = Bid.objects.filter(item_bid=listing_id).aggregate(Max('bid'))
+            max_bid = max_bid['bid__max']
+            bid_winner = Bid.objects.get(item_bid=listing_id, bid=max_bid)
+            active_listing.winner = bid_winner.user_bid
+        else:
+            active_listing.winner = None
+        active_listing.save()
+        return HttpResponseRedirect(reverse('index'))
+
+
+@login_required
+def comment(request):
+    curent_user = request.user.id
+    curent_user = User.objects.get(id = curent_user)
+    comment_form = Comment_form(request.POST)
+    if request.method == "POST":
+        listing_id = request.POST["listing_id"]
+        listing_item = Listing.objects.get(id = listing_id)
+        if comment_form.is_valid():
+            curent_comment = comment_form.cleaned_data['comment']
+            create_comment = Comment(user_comment=curent_user, listing_comment=listing_item, comment=curent_comment)
+            create_comment.save()
+            return HttpResponseRedirect(reverse('active_listing', args=(listing_id,)))
+        else:
+            raise forms.ValidationError(comment_form.errors)

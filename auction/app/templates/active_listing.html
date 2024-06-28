@@ -79,7 +79,15 @@
                         </li>
                     {% endfor %}
                 </ul>
-                
+                <div>
+                    <form action="{% url "comment" %}" method='post'>
+                        {% csrf_token %}
+                        <div style='margin: 0px 0px 8px'>
+                            {{comment_form}}
+                        </div>
+                        <button type="submit" name="listing_id" value="{{ listing.id }}" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
             {% else %}
                 <h2> You must be <a href="/login">login</a> to participate in the auction ! </h2>
             {% endif %}
