@@ -11,11 +11,12 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 
 
-
+#bid form ----
 class Bid_form(forms.Form):
     bid_form = forms.IntegerField(required=True, label='Create your bid')
     bid_form.widget.attrs.update({'class': 'form-control'})
 
+#comment form -----
 class Comment_form(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(), label='Leave a comment')
     comment.widget.attrs.update({
@@ -23,7 +24,7 @@ class Comment_form(forms.Form):
         'rows': '3'
     })
 
-
+#index-------
 def index(request):
     all_listings = Listing.objects.all()
     #Get unique values from category query
@@ -34,7 +35,7 @@ def index(request):
 
 
 
-
+#login_view -----
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -54,11 +55,13 @@ def login_view(request):
             })
     else:
         return render(request, "login.html")
-
+    
+#log_out view
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+#register_view
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -84,6 +87,8 @@ def register(request):
     else:
         return render(request, "register.html")
 
+
+#create listing
 @login_required
 def create_listing(request):
     if request.method == "POST":
@@ -121,10 +126,10 @@ def active_listing(request, listing_id):
             watchlist_state = True
     except Listing.DoesNotExist:
         raise Http404("Listing not found.")
-    #All comments
-    # Get comments for this listing item
+    
+    # Get comments 
     comments = Comment.objects.filter(listing_comment = listing_id)
-    #Make a Bid block
+    
     if request.method == 'POST':
         form = Bid_form(request.POST)
         curent_user = request.user.id
@@ -159,7 +164,7 @@ def active_listing(request, listing_id):
                     'bid_count': bid_count,                        
                     'form': Bid_form(),
                     'comment_form': Comment_form(),
-                    "err_message": "Bid can't be less than curent max bid"
+                    "err_message": "Bid can not be less than curent max bid"
                     })
         else:           
             return HttpResponseBadRequest("Form is not valid")
@@ -176,7 +181,7 @@ def active_listing(request, listing_id):
 
 
 
-    
+#watchlist    
 @login_required
 def watchlist(request):
     curent_user = request.user.id      
@@ -205,7 +210,7 @@ def category(request, category):
     })
  
 
-
+#close_bid---
 @login_required
 def close_bid(request):
     if request.method == "POST":
@@ -223,7 +228,7 @@ def close_bid(request):
         active_listing.save()
         return HttpResponseRedirect(reverse('index'))
 
-
+#comment
 @login_required
 def comment(request):
     curent_user = request.user.id
