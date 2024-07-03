@@ -7,8 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import User, Listing, User,Watchlist,Bid,Comment
 from django import forms
 from django.db.models import Max
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
+
 
 
 #bid form ----
