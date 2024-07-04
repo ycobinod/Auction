@@ -17,15 +17,7 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.starting_bid} {self.owner}"  
-    
-
-class Watchlist(models.Model):
-    user_watchlist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_watchlist')
-    listing_item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='listing_item')
-    
-    def __str__(self):
-        return f"{self.user_watchlist} {self.listing_item}"
-    
+        
 
 
 class Bid(models.Model):
@@ -35,6 +27,13 @@ class Bid(models.Model):
   
     def __str__(self):
         return f"{self.user_bid} {self.item_bid.name} {self.bid}"    
+
+class Watchlist(models.Model):
+    user_watchlist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_watchlist')
+    listing_item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='listing_item')
+    
+    def __str__(self):
+        return f"{self.user_watchlist} {self.listing_item}"
 
 
 class Comment(models.Model):
